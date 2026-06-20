@@ -1,0 +1,22 @@
+name: clima-goiania
+on:
+  schedule:
+    - cron: "0 12 * * *"     # 12h UTC = 9h em Brasília
+  workflow_dispatch:          # botão para rodar na hora
+permissions:
+  contents: write             # o robô precisa para dar push do gráfico
+jobs:
+  clima:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install requests pandas matplotlib
+      - run: python coletar_clima.py
+      - run: |
+          git config user.name  "robo"
+          git config user.email "robo@users.noreply.github.com"
+          git add previsao_goiania.png
+          git commit -m "previsao $(date -u +%F)" || echo "nada a commitar"
+          git push

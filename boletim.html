@@ -76,26 +76,26 @@
 <main>
   <h1>Boletim semanal de acerto da previsão — Goiânia</h1>
   <p class="meta">2026-09-21 · semana de 2026-09-14 a
-     2026-09-20 · 100 previsões no histórico</p>
-  <div class="aviso">Previsões conferidas: 100 recuperadas do arquivo de rodadas antigas do Open-Meteo. São previsões reais, emitidas antes da data que descrevem — nada aqui é simulado.</div>
+     2026-09-20 · 140 previsões no histórico</p>
+  <div class="aviso">Previsões conferidas: 140 recuperadas do arquivo de rodadas antigas do Open-Meteo. São previsões reais, emitidas antes da data que descrevem — nada aqui é simulado.</div>
 
   <div class="kpis">
     <div class="kpi"><span>Erro médio da máxima</span>
-      <strong>1.17 °C</strong>
+      <strong>1.22 °C</strong>
       <span class="bom">melhor que o normal</span></div>
     <div class="kpi"><span>Erro médio da mínima</span>
-      <strong>0.89 °C</strong>
-      <span class="igual">igual ao normal</span></div>
+      <strong>1.17 °C</strong>
+      <span class="ruim">pior que o normal</span></div>
     <div class="kpi"><span>Viés da máxima</span>
-      <strong>+1.09 °C</strong>
+      <strong>+0.82 °C</strong>
       <span class="ruim">pior que o normal</span></div>
     <div class="kpi"><span>Acerto de chuva</span>
-      <strong>88.6%</strong>
+      <strong>87.8%</strong>
       <span class="ruim">pior que o normal</span></div>
   </div>
 
   <h2>Análise</h2>
-  <p>Na semana de 2026-09-14 a 2026-09-20, o erro médio da temperatura máxima foi de 1.17 °C em 35 previsões conferidas — melhor que o acumulado, que está em 1.44 °C.</p><p>O viés de +1.09 °C indica que a previsão tende a ficar acima do que se observa. O acerto entre "vai chover" e "não vai" foi de 88.6%. O maior desacerto do histórico foi em 2026-09-02: previa 34.0 °C e foram 29.5 °C.</p><p>Na prática: com 1 dia de antecedência, conte com cerca de 1.19 °C de margem; com 5 dias, a margem sobe para perto de 1.79 °C. Para decisões que não podem errar, prefira confirmar na véspera.</p>
+  <p>Na semana de 2026-09-14 a 2026-09-20, o erro médio da temperatura máxima foi de 1.22 °C em 49 previsões conferidas — melhor que o acumulado, que está em 1.55 °C.</p><p>O viés de +0.82 °C indica que a previsão tende a ficar acima do que se observa. O acerto entre "vai chover" e "não vai" foi de 87.8%. O maior desacerto do histórico foi em 2026-09-10: previa 27.0 °C e foram 33.0 °C.</p><p>Na prática: com 1 dia de antecedência, conte com cerca de 1.19 °C de margem; com 7 dias, a margem sobe para perto de 1.98 °C. Para decisões que não podem errar, prefira confirmar na véspera.</p>
   <p class="credito">texto automático (sem GEMINI_API_KEY). Os números são calculados em Python; a IA só
      redige, e o texto passa por uma auditoria que recusa qualquer número que
      não saia do cálculo.</p>
@@ -106,7 +106,7 @@
   <table>
     <thead><tr><th>Antecedência</th><th>Previsões</th><th>Erro médio máx.</th>
     <th>Erro médio mín.</th><th>Viés máx.</th></tr></thead>
-    <tbody><tr><td>1 dia</td><td>20</td><td>1.19 °C</td><td>0.51 °C</td><td>+0.66 °C</td></tr><tr><td>2 dias</td><td>20</td><td>1.26 °C</td><td>0.81 °C</td><td>+0.92 °C</td></tr><tr><td>3 dias</td><td>20</td><td>1.35 °C</td><td>0.72 °C</td><td>+0.82 °C</td></tr><tr><td>4 dias</td><td>20</td><td>1.61 °C</td><td>0.97 °C</td><td>+0.54 °C</td></tr><tr><td>5 dias</td><td>20</td><td>1.79 °C</td><td>1.47 °C</td><td>+0.72 °C</td></tr></tbody>
+    <tbody><tr><td>1 dia</td><td>20</td><td>1.19 °C</td><td>0.51 °C</td><td>+0.66 °C</td></tr><tr><td>2 dias</td><td>20</td><td>1.26 °C</td><td>0.81 °C</td><td>+0.92 °C</td></tr><tr><td>3 dias</td><td>20</td><td>1.35 °C</td><td>0.72 °C</td><td>+0.82 °C</td></tr><tr><td>4 dias</td><td>20</td><td>1.61 °C</td><td>0.97 °C</td><td>+0.54 °C</td></tr><tr><td>5 dias</td><td>20</td><td>1.79 °C</td><td>1.47 °C</td><td>+0.72 °C</td></tr><tr><td>6 dias</td><td>20</td><td>1.68 °C</td><td>1.81 °C</td><td>+0.12 °C</td></tr><tr><td>7 dias</td><td>20</td><td>1.98 °C</td><td>1.81 °C</td><td>-0.56 °C</td></tr></tbody>
   </table>
   <img src="graficos/erro_por_antecedencia.png"
        alt="Gráfico de barras: o erro médio da temperatura máxima cresce
@@ -114,11 +114,11 @@
   
   <p>E a mesma regra vista dia a dia: a previsão feita
      1 dia antes acompanha o que aconteceu; a de
-     5 dias se descola.</p>
+     7 dias se descola.</p>
   <img src="graficos/de_longe_e_de_perto.png"
        alt="Três linhas ao longo de 20 dias: o que aconteceu,
             o previsto 1 dia antes, que acompanha de perto,
-            e o previsto 5 dias antes, que se descola">
+            e o previsto 7 dias antes, que se descola">
 
 
   <h2>Chuva: acertou o sim ou não?</h2>
@@ -126,14 +126,14 @@
      1.0 mm no dia.</p>
   <table>
     <thead><tr><th>Situação</th><th>Dias</th></tr></thead>
-    <tbody><tr><td>Previu chuva e choveu</td><td>0</td></tr><tr><td>Previu chuva e não choveu</td><td>4</td></tr><tr><td>Não previu e choveu</td><td>0</td></tr><tr><td>Previu seco e ficou seco</td><td>31</td></tr></tbody>
+    <tbody><tr><td>Previu chuva e choveu</td><td>0</td></tr><tr><td>Previu chuva e não choveu</td><td>6</td></tr><tr><td>Não previu e choveu</td><td>0</td></tr><tr><td>Previu seco e ficou seco</td><td>43</td></tr></tbody>
   </table>
 
   <h2>Maior desacerto do histórico</h2>
-  <p>Em <strong>2026-09-02</strong>, com
-     5 dias de antecedência: previsto
-     34.0 °C, observado
-     29.5 °C (+4.5 °C).</p>
+  <p>Em <strong>2026-09-10</strong>, com
+     7 dias de antecedência: previsto
+     27.0 °C, observado
+     33.0 °C (-6.0 °C).</p>
 
   <footer class="credito">
     Dados: Open-Meteo. O “observado” é a melhor estimativa da API para datas

@@ -4,6 +4,13 @@ on:
   schedule:
     - cron: "0 12 * * *"    # 12h UTC = 9h em Brasília
   workflow_dispatch:         # botão "Run workflow" para rodar na hora, em aula
+    inputs:
+      dias_de_historico:
+        description: >-
+          Recuperar previsões antigas antes de gerar o boletim (0 = não
+          recuperar). Use uma vez, para o histórico nascer cheio.
+        required: false
+        default: "0"
 
 permissions:
   contents: write            # o robô precisa disso para commitar o boletim
@@ -25,6 +32,12 @@ jobs:
           python-version: "3.12"
 
       - run: pip install requests matplotlib
+
+      - name: Passo 0 — recuperar previsões antigas (só quando pedido)
+        if: >-
+          github.event_name == 'workflow_dispatch' &&
+          inputs.dias_de_historico != '0'
+        run: python montar_historico.py "${{ inputs.dias_de_historico }}"
 
       - name: Passo 1 — coletar a previsão de hoje e anotar no histórico
         run: python 1_coletar.py

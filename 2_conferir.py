@@ -95,8 +95,9 @@ def main():
 
     print(f"{len(linhas)} previsões conferidas.")
     if not linhas:
-        print("Nenhuma previsão antiga tem data já vencida — normal no 1º dia.")
-        print("Para ver o boletim completo hoje, rode: python3 semear_exemplo.py")
+        print("Nenhuma previsão antiga tem data já vencida.")
+        print("Para trazer o histórico real de uma vez:")
+        print("    python3 montar_historico.py")
     print(f"  arquivo: {comum.ARQ_VERIFICACAO}")
 
 

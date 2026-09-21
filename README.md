@@ -41,6 +41,7 @@ entre automatizar uma tarefa e automatizar um **processo**.
 
 | Passo | Arquivo | O que faz |
 |---|---|---|
+| 0 | `montar_historico.py` | Recupera as previsões que o Open-Meteo **já emitiu** nas últimas semanas, para o histórico nascer cheio. Roda uma vez. |
 | 1 | `1_coletar.py` | Pega a previsão de 7 dias e **anota** cada uma em `dados/historico_previsoes.csv`, junto com a data em que foi feita. |
 | 2 | `2_conferir.py` | Pega o que **de fato aconteceu** e cruza com as previsões antigas. Gera `dados/verificacao.csv` com o erro de cada uma. |
 | 3 | `3_boletim.py` | Calcula as estatísticas, desenha os gráficos e escreve o boletim. |
@@ -101,21 +102,21 @@ python3 2_conferir.py     # confere as previsões antigas
 python3 3_boletim.py      # gera boletim.md, boletim.html e os gráficos
 ```
 
-No primeiro dia o passo 2 não tem nada para conferir — é esperado, ainda não
-passou tempo nenhum. Para ver o boletim cheio na hora:
+Começando do zero, o passo 2 não tem nada para conferir — ainda não passou
+tempo nenhum. Para o histórico nascer cheio, rode uma vez:
 
 ```bash
-python3 semear_exemplo.py     # cria um histórico SIMULADO, para demonstração
-python3 2_conferir.py && python3 3_boletim.py
+python3 montar_historico.py 21    # recupera as previsões dos últimos 21 dias
 ```
 
-As linhas criadas levam a marca `origem=exemplo` e o boletim mostra um aviso
-grande de **MODO EXEMPLO**. Não são medição, são demonstração de formato.
-Quando o histórico real tiver uns 7 dias, é só apagar:
+Isso não inventa nada. O Open-Meteo arquiva as previsões de cada rodada do
+modelo: pedindo `temperature_2m_previous_day3` você recebe a temperatura que
+**foi prevista 3 dias antes** daquele horário. São as previsões de verdade,
+como foram emitidas na época.
 
-```bash
-python3 semear_exemplo.py --limpar
-```
+O script busca uma antecedência por vez, com pausa entre os pedidos — sete
+pedidos seguidos levam erro 429 na API gratuita. Se alguma antecedência não
+vier, o que já baixou fica salvo; é só rodar de novo mais tarde.
 
 ### Para a IA escrever o texto
 
@@ -138,7 +139,10 @@ commita o boletim no repositório. Cada dia vira um commit — o histórico do g
 passa a ser o arquivo dos boletins.
 
 Dá para disparar na hora pelo botão **Actions → boletim-clima → Run workflow**
-(útil em aula).
+(útil em aula). Esse botão tem um campo **dias_de_historico**: preencha com
+`21` na primeira vez e o robô recupera o histórico antes de gerar o boletim.
+Rodando pelo Actions você também escapa do limite por IP da API — se alguma
+antecedência faltar rodando na sua máquina, pelo Actions ela costuma vir.
 
 > Agendamento (`schedule`) só funciona a partir do branch padrão. Enquanto isso
 > aqui estiver num branch, use o botão.
@@ -152,9 +156,10 @@ Dá para disparar na hora pelo botão **Actions → boletim-clima → Run workfl
    são 30 dias de previsão, todos perdidos, porque só a figura foi salva.
 2. **Aponte o conserto.** Uma linha de CSV por previsão. Só isso.
 3. **Abra `boletim.md`.** Vá direto ao gráfico de erro por antecedência: a
-   barra cresce da esquerda para a direita. Previsão de amanhã erra pouco; de 6
-   dias, erra o triplo. O robô descobriu isso sozinho, medindo a si mesmo.
-4. **Mostre a tabela de chuva.** "Previu chuva e não choveu: 20 dias." É o tipo
+   barra cresce da esquerda para a direita. Previsão de amanhã erra pouco; de
+   uma semana, erra bem mais. O robô descobriu isso sozinho, medindo previsões
+   reais contra o que de fato aconteceu.
+4. **Mostre a tabela de chuva.** "Previu chuva e não choveu: N dias." É o tipo
    de número que ninguém tem à mão e que sai de graça quando se guarda dado.
 5. **Só então fale da IA.** Mostre o `PROMPT` no `3_boletim.py` e a regra "não
    calcule nada". Rode com e sem `GEMINI_API_KEY` para mostrar que os números
@@ -183,14 +188,23 @@ LIMIAR_CHUVA_MM = 1.0     # a partir de quanto se considera que choveu
 
 | Arquivo | O que é |
 |---|---|
-| `comum.py` | Chamada à API (com repetição em caso de falha de rede) e leitura/escrita do histórico |
+| `comum.py` | Chamadas à API (com repetição em caso de falha de rede) e leitura/escrita do histórico |
 | `1_coletar.py` · `2_conferir.py` · `3_boletim.py` | Os três passos |
-| `semear_exemplo.py` | Histórico simulado, só para demonstrar em aula |
+| `montar_historico.py` | Recupera previsões reais já emitidas, para encher o histórico de uma vez |
 | `dados/historico_previsoes.csv` | O caderno: toda previsão já feita |
 | `dados/verificacao.csv` | Previsto x observado, com o erro de cada linha |
 | `boletim.md` · `boletim.html` | O boletim do dia |
 | `graficos/` | As figuras do boletim |
 | `coletar_clima.py` | O bot original da atividade, mantido como termo de comparação |
+
+## As duas procedências no histórico
+
+A coluna `origem` do CSV distingue de onde veio cada previsão — as duas são
+dados reais:
+
+- `arquivo` — recuperada por `montar_historico.py` do acervo de rodadas
+  antigas do Open-Meteo.
+- `ao_vivo` — coletada pelo próprio robô naquele dia, por `1_coletar.py`.
 
 ## Uma ressalva honesta
 

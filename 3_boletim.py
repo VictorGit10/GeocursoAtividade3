@@ -118,8 +118,10 @@ def calcular(linhas):
             "observado": pior["tmax_observada"],
             "erro": pior["erro_tmax"],
         },
-        # Se qualquer linha vier do semeador, o boletim inteiro é demonstração.
-        "modo_exemplo": any(l.get("origem") == "exemplo" for l in linhas),
+        # De onde veio cada previsão. As duas são dados reais do Open-Meteo:
+        # "arquivo" = recuperada das rodadas antigas do modelo
+        # "ao_vivo" = coletada pelo próprio robô naquele dia
+        "origens": dict(Counter(l.get("origem", "arquivo") for l in linhas)),
     }
 
 
@@ -312,11 +314,23 @@ def texto_da_ia(m):
 # 4. Montar os arquivos do boletim
 # --------------------------------------------------------------------------
 
-AVISO_EXEMPLO = (
-    "Este boletim inclui previsões **simuladas** (`origem=exemplo`), criadas por "
-    "`semear_exemplo.py` para demonstrar o formato antes de o histórico real "
-    "encher. Os números de erro abaixo são ilustrativos, não uma medição."
-)
+def descricao_origens(m, html=False):
+    """Explica de onde vieram as previsões. Ambas as fontes são dados reais."""
+    arquivo = m["origens"].get("arquivo", 0)
+    ao_vivo = m["origens"].get("ao_vivo", 0)
+
+    partes = []
+    if arquivo:
+        partes.append(f"{arquivo} recuperadas do arquivo de rodadas antigas "
+                      "do Open-Meteo")
+    if ao_vivo:
+        partes.append(f"{ao_vivo} coletadas pelo próprio robô, dia a dia")
+
+    corpo = " e ".join(partes) if partes else "origem não identificada"
+    fecho = ("São previsões reais, emitidas antes da data que descrevem — "
+             "nada aqui é simulado.")
+    texto = f"Previsões conferidas: {corpo}. {fecho}"
+    return texto if html else f"> {texto}"
 
 
 def montar_markdown(m, analise, autor, antecedencia_linha):
@@ -327,8 +341,7 @@ def montar_markdown(m, analise, autor, antecedencia_linha):
         f"({m['periodo_inicio']} a {m['periodo_fim']})",
         "",
     ]
-    if m["modo_exemplo"]:
-        linhas += [f"> ⚠️ **MODO EXEMPLO** — {AVISO_EXEMPLO}", ""]
+    linhas += [descricao_origens(m), ""]
 
     linhas += [
         "## Análise",
@@ -404,14 +417,7 @@ def montar_html(m, analise, autor, antecedencia_linha):
     paragrafos = "".join(
         f"<p>{p.strip()}</p>" for p in analise.split("\n\n") if p.strip()
     )
-    aviso = ""
-    if m["modo_exemplo"]:
-        aviso = (
-            '<div class="aviso"><strong>MODO EXEMPLO</strong> — este boletim '
-            "inclui previsões simuladas, criadas para demonstrar o formato "
-            "antes de o histórico real encher. Os números de erro são "
-            "ilustrativos, não uma medição.</div>"
-        )
+    aviso = f'<div class="aviso">{descricao_origens(m, html=True)}</div>'
 
     filas = "".join(
         f"<tr><td>{a} {'dia' if a == 1 else 'dias'}</td>"
@@ -554,7 +560,7 @@ def main():
     linhas = ler_verificacao()
     if not linhas:
         print("Nada conferido ainda. Rode 1_coletar.py e 2_conferir.py.")
-        print("Para ver o boletim completo hoje: python3 semear_exemplo.py")
+        print("Para trazer o histórico real: python3 montar_historico.py")
         return
 
     m = calcular(linhas)
@@ -571,8 +577,6 @@ def main():
         f.write(montar_html(m, analise, autor, antecedencia_linha))
 
     print(f"Boletim gerado ({autor}).")
-    if m["modo_exemplo"]:
-        print("  ATENÇÃO: inclui previsões de exemplo (simuladas).")
     print(f"  {ARQ_BOLETIM_MD}")
     print(f"  {ARQ_BOLETIM_HTML}")
 

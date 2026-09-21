@@ -41,7 +41,7 @@ def main():
                 "tmax_prevista": str(diario["temperature_2m_max"][i]),
                 "tmin_prevista": str(diario["temperature_2m_min"][i]),
                 "chuva_prevista_mm": str(diario["precipitation_sum"][i]),
-                "origem": "real",
+                "origem": "ao_vivo",
             }
         )
 

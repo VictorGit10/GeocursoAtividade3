@@ -66,19 +66,19 @@
 <body>
 <main>
   <h1>Boletim de acerto da previsão — Goiânia</h1>
-  <p class="meta">Gerado em 2026-09-21 · 120 previsões
+  <p class="meta">Gerado em 2026-09-21 · 100 previsões
      conferidas (2026-09-01 a 2026-09-20)</p>
-  <div class="aviso"><strong>MODO EXEMPLO</strong> — este boletim inclui previsões simuladas, criadas para demonstrar o formato antes de o histórico real encher. Os números de erro são ilustrativos, não uma medição.</div>
+  <div class="aviso">Previsões conferidas: 100 recuperadas do arquivo de rodadas antigas do Open-Meteo. São previsões reais, emitidas antes da data que descrevem — nada aqui é simulado.</div>
 
   <div class="kpis">
-    <div class="kpi"><span>Erro médio máx.</span><strong>1.75 °C</strong></div>
-    <div class="kpi"><span>Erro médio mín.</span><strong>1.61 °C</strong></div>
-    <div class="kpi"><span>Viés da máxima</span><strong>+0.65 °C</strong></div>
-    <div class="kpi"><span>Acerto de chuva</span><strong>75.0%</strong></div>
+    <div class="kpi"><span>Erro médio máx.</span><strong>1.44 °C</strong></div>
+    <div class="kpi"><span>Erro médio mín.</span><strong>0.89 °C</strong></div>
+    <div class="kpi"><span>Viés da máxima</span><strong>+0.73 °C</strong></div>
+    <div class="kpi"><span>Acerto de chuva</span><strong>92.0%</strong></div>
   </div>
 
   <h2>Análise</h2>
-  <p>Nas 120 previsões conferidas entre 2026-09-01 e 2026-09-20, o erro médio da temperatura máxima foi de 1.75 °C. A qualidade cai com a distância: com 1 dia de antecedência o erro médio é 0.8 °C, e com 6 dias sobe para 2.48 °C.</p><p>O viés de +0.65 °C indica que a previsão tende a ficar acima do que se observa. Para chuva, o acerto entre "vai chover" e "não vai" foi de 75.0%. O maior desacerto do período foi em 2026-09-16: previa 40.8 °C e foram 33.5 °C.</p>
+  <p>Nas 100 previsões conferidas entre 2026-09-01 e 2026-09-20, o erro médio da temperatura máxima foi de 1.44 °C. A qualidade cai com a distância: com 1 dia de antecedência o erro médio é 1.19 °C, e com 5 dias sobe para 1.79 °C.</p><p>O viés de +0.73 °C indica que a previsão tende a ficar acima do que se observa. Para chuva, o acerto entre "vai chover" e "não vai" foi de 92.0%. O maior desacerto do período foi em 2026-09-02: previa 34.0 °C e foram 29.5 °C.</p>
   <p class="credito">texto automático (sem GEMINI_API_KEY). Todos os números foram calculados em Python;
      a IA apenas redigiu o texto.</p>
 
@@ -86,7 +86,7 @@
   <table>
     <thead><tr><th>Antecedência</th><th>Previsões</th><th>Erro médio máx.</th>
     <th>Erro médio mín.</th><th>Viés máx.</th></tr></thead>
-    <tbody><tr><td>1 dia</td><td>20</td><td>0.8 °C</td><td>0.8 °C</td><td>+0.7 °C</td></tr><tr><td>2 dias</td><td>20</td><td>1.18 °C</td><td>0.77 °C</td><td>+0.83 °C</td></tr><tr><td>3 dias</td><td>20</td><td>1.22 °C</td><td>1.56 °C</td><td>-0.09 °C</td></tr><tr><td>4 dias</td><td>20</td><td>1.99 °C</td><td>1.69 °C</td><td>+0.64 °C</td></tr><tr><td>5 dias</td><td>20</td><td>2.85 °C</td><td>2.64 °C</td><td>+0.6 °C</td></tr><tr><td>6 dias</td><td>20</td><td>2.48 °C</td><td>2.19 °C</td><td>+1.22 °C</td></tr></tbody>
+    <tbody><tr><td>1 dia</td><td>20</td><td>1.19 °C</td><td>0.51 °C</td><td>+0.66 °C</td></tr><tr><td>2 dias</td><td>20</td><td>1.26 °C</td><td>0.81 °C</td><td>+0.92 °C</td></tr><tr><td>3 dias</td><td>20</td><td>1.35 °C</td><td>0.72 °C</td><td>+0.82 °C</td></tr><tr><td>4 dias</td><td>20</td><td>1.61 °C</td><td>0.97 °C</td><td>+0.54 °C</td></tr><tr><td>5 dias</td><td>20</td><td>1.79 °C</td><td>1.47 °C</td><td>+0.72 °C</td></tr></tbody>
   </table>
   <img src="graficos/erro_por_antecedencia.png"
        alt="Gráfico de barras: o erro médio da temperatura máxima cresce conforme
@@ -95,14 +95,14 @@
   <h3>Chuva: acertou o sim ou não?</h3>
   <table>
     <thead><tr><th>Situação</th><th>Dias</th></tr></thead>
-    <tbody><tr><td>Previu chuva e choveu</td><td>32</td></tr><tr><td>Previu chuva e não choveu</td><td>20</td></tr><tr><td>Não previu e choveu</td><td>10</td></tr><tr><td>Previu seco e ficou seco</td><td>58</td></tr></tbody>
+    <tbody><tr><td>Previu chuva e choveu</td><td>31</td></tr><tr><td>Previu chuva e não choveu</td><td>4</td></tr><tr><td>Não previu e choveu</td><td>4</td></tr><tr><td>Previu seco e ficou seco</td><td>61</td></tr></tbody>
   </table>
 
   <h3>Maior desacerto do período</h3>
-  <p>Em <strong>2026-09-16</strong>, com
+  <p>Em <strong>2026-09-02</strong>, com
      5 dias de antecedência: previsto
-     40.8 °C, observado
-     33.5 °C (+7.3 °C).</p>
+     34.0 °C, observado
+     29.5 °C (+4.5 °C).</p>
   <img src="graficos/previsto_vs_observado.png" alt="Linha do tempo comparando a máxima prevista com a observada">
 
   <footer class="credito">

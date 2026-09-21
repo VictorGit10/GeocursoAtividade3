@@ -35,34 +35,20 @@ COLUNAS_HISTORICO = [
     "tmax_prevista",
     "tmin_prevista",
     "chuva_prevista_mm",
-    "origem",               # "real" ou "exemplo" (dados simulados p/ demonstração)
+    "origem",               # "arquivo" (recuperada) ou "ao_vivo" (coletada no dia)
 ]
 
 
-def buscar_open_meteo(dias_passado=0, dias_futuro=7, tentativas=4):
-    """Chama a API e devolve o bloco 'daily' como dicionário.
-
-    dias_passado=0 e dias_futuro=7  -> só previsão
-    dias_passado=15 e dias_futuro=1 -> traz o observado das últimas 2 semanas
+def pedir_json(url, params, tentativas=4):
+    """Faz o GET e devolve o JSON, insistindo se a rede falhar.
 
     Um robô que roda sozinho de madrugada não tem ninguém para clicar em
     "tentar de novo". Então ele mesmo tenta: 4 vezes, esperando cada vez mais
-    (2s, 4s, 8s). Uma falha de rede passageira deixa de virar um dia sem dados.
+    (2s, 4s, 8s). Uma falha passageira deixa de virar um dia sem dados.
     """
-    params = {
-        "latitude": LATITUDE,
-        "longitude": LONGITUDE,
-        "daily": "temperature_2m_max,temperature_2m_min,precipitation_sum",
-        "timezone": FUSO,
-        "past_days": dias_passado,
-        "forecast_days": dias_futuro,
-    }
-
     for tentativa in range(1, tentativas + 1):
         try:
-            resposta = requests.get(
-                "https://api.open-meteo.com/v1/forecast", params=params, timeout=60
-            )
+            resposta = requests.get(url, params=params, timeout=90)
             resposta.raise_for_status()
             break
         except requests.RequestException as erro:
@@ -76,12 +62,32 @@ def buscar_open_meteo(dias_passado=0, dias_futuro=7, tentativas=4):
 
     dados = resposta.json()
 
-    # A API responde HTTP 200 mesmo quando recusa o pedido (cota, parâmetro
-    # errado). Sem esta checagem o robô quebraria mais adiante, com um erro
-    # confuso e longe da causa real.
+    # A API responde HTTP 200 mesmo quando recusa o pedido (cota estourada,
+    # parâmetro errado). Sem esta checagem o robô quebraria mais adiante, com
+    # um erro confuso e longe da causa real.
     if dados.get("error"):
         raise RuntimeError(f"Open-Meteo recusou o pedido: {dados.get('reason')}")
 
+    return dados
+
+
+def buscar_open_meteo(dias_passado=0, dias_futuro=7):
+    """Devolve o bloco 'daily' da API principal.
+
+    dias_passado=0 e dias_futuro=7  -> só previsão
+    dias_passado=15 e dias_futuro=1 -> traz o observado das últimas 2 semanas
+    """
+    dados = pedir_json(
+        "https://api.open-meteo.com/v1/forecast",
+        {
+            "latitude": LATITUDE,
+            "longitude": LONGITUDE,
+            "daily": "temperature_2m_max,temperature_2m_min,precipitation_sum",
+            "timezone": FUSO,
+            "past_days": dias_passado,
+            "forecast_days": dias_futuro,
+        },
+    )
     return dados["daily"]
 
 

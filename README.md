@@ -1,7 +1,7 @@
 # Robô que faz a previsão — e depois confere se acertou
 
-Um agente que roda sozinho todo dia, monta um **boletim de análise de dados** e
-mede a própria qualidade ao longo do tempo.
+Um agente que roda sozinho toda semana, monta um **boletim de análise de
+dados** e mede a própria qualidade ao longo do tempo.
 
 Este repositório existe para responder a uma dúvida da turma:
 
@@ -44,7 +44,8 @@ entre automatizar uma tarefa e automatizar um **processo**.
 | 0 | `montar_historico.py` | Recupera as previsões que o Open-Meteo **já emitiu** nas últimas semanas, para o histórico nascer cheio. Roda uma vez. |
 | 1 | `1_coletar.py` | Pega a previsão de 7 dias e **anota** cada uma em `dados/historico_previsoes.csv`, junto com a data em que foi feita. |
 | 2 | `2_conferir.py` | Pega o que **de fato aconteceu** e cruza com as previsões antigas. Gera `dados/verificacao.csv` com o erro de cada uma. |
-| 3 | `3_boletim.py` | Calcula as estatísticas, desenha os gráficos e escreve o boletim. |
+| 3 | `3_boletim.py` | Calcula as estatísticas, desenha os gráficos e monta o boletim. |
+| — | `ia.py` | A camada de IA: manda os números para o modelo redigir **e audita o texto que volta**. |
 
 ### O truque que faz isso caber numa aula
 
@@ -64,33 +65,80 @@ conferência sai de graça, sem cadastrar nenhuma segunda API.
 
 ## A parte que responde à dúvida: onde entra a IA
 
-> **O código calcula. A IA redige.**
+> **O código calcula. A IA redige. A auditoria confere.**
 
 Todos os números do boletim — erro médio, viés, taxa de acerto — saem de contas
-em Python, dentro da função `calcular()`. São determinísticas: rodando de novo,
-dá igual, e qualquer um pode auditar a conta.
+em Python, dentro de `calcular()`. São determinísticas: rodando de novo, dá
+igual, e qualquer um pode auditar a conta.
 
-A IA entra só no fim. Ela recebe os números **já prontos** e tem uma única
-tarefa: escrever os dois parágrafos de análise em português. O prompt diz isso
-com todas as letras:
+A IA entra só no fim, em `ia.py`. Recebe os números **já prontos** e escreve
+três parágrafos: como foi a semana, o que chama atenção, e uma recomendação
+prática de quanto desconfiar da previsão.
 
+### E aqui está o pulo do gato
+
+O prompt manda o modelo não inventar número. Só que **um prompt é um pedido,
+não uma garantia.** O modelo pode desobedecer, e num boletim que sai sozinho
+na segunda de manhã ninguém ficaria sabendo.
+
+Então tem uma trava, em `ia.py`:
+
+```python
+inventados = auditar(texto, numeros_permitidos(dados))
+if inventados:
+    # o texto da IA é RECUSADO e entra o texto automático
 ```
-- Não calcule nada. Não invente nenhum número. Use somente os valores do JSON.
-- Se citar um número, copie-o exatamente como está.
-```
 
-**Por que essa separação é o ponto principal.** A tentação é mandar a planilha
-crua para o modelo e pedir "me dê o erro médio". Ele responde um número, com
-toda a confiança do mundo — e pode estar errado, sem nenhum aviso. Num boletim
-que sai às 9h da manhã sem ninguém olhando, isso é veneno. Dê ao modelo o que
-ele faz bem (transformar números em frase clara) e não o que ele faz mal
-(aritmética).
+A função varre o texto que voltou, extrai todo número e confere um por um
+contra os valores que o cálculo realmente produziu. Se aparecer qualquer
+número que não existe, o texto é jogado fora e o boletim sai com o texto
+automático — dizendo, no rodapé, que a IA foi recusada e por quê.
 
-E tem um efeito colateral bom: **sem chave de API o boletim sai do mesmo
-jeito**, só com o texto montado por frases fixas (`texto_de_reserva`). A IA é a
-cereja, não o bolo. Se ela falhar, o robô não cai — está testado.
+Testado com casos reais de fracasso:
 
----
+| Texto da IA | Veredito |
+|---|---|
+| "o erro médio foi de 1.44 °C" | aprovado |
+| "o erro médio foi de 1,44 °C" (vírgula) | aprovado |
+| "uma melhora de 18% sobre a semana passada" | **recusado** — 18 não existe |
+| "somando as antecedências, o erro geral é 1.49 °C" | **recusado** — a IA calculou |
+| "acertou 87.5% dos dias de chuva" | **recusado** — número plausível e falso |
+
+**Por que isso é o ponto principal.** A tentação é mandar a planilha crua para
+o modelo e pedir "me dê o erro médio". Ele responde um número, com toda a
+confiança do mundo — e pode estar errado, sem nenhum aviso. Dê ao modelo o que
+ele faz bem (transformar números em frase clara), não o que ele faz mal
+(aritmética). E depois **confira**, com código.
+
+Efeito colateral: **sem chave de API o boletim sai do mesmo jeito**, com o
+texto montado por frases fixas. A IA é a cereja, não o bolo.
+
+## Por que semanal, e não diário
+
+O bot antigo rodava todo dia. Este não, e por um motivo de conteúdo: o que
+ele mede é a **qualidade** da previsão, e isso quase não muda de segunda para
+terça. Um boletim diário repetiria o mesmo número com ruído em volta — e
+ninguém leria o quinto.
+
+Na segunda-feira há uma semana inteira fechada, com previsões novas para
+conferir, e o boletim tem duas coisas a dizer: como foi esta semana, e como
+isso se compara com o acumulado. Aí a cadência faz sentido.
+
+Cadência, aliás, é decisão de projeto — não detalhe técnico. A pergunta certa
+não é "de quanto em quanto tempo dá para rodar?", é **"de quanto em quanto
+tempo há algo novo para dizer?"**.
+
+## Os dois gráficos contam a mesma história
+
+Não são dois assuntos, são o mesmo assunto em duas escalas:
+
+- **`erro_por_antecedencia.png`** — a regra, em média: quanto mais longe a
+  previsão, maior o erro. É a barra que cresce.
+- **`de_longe_e_de_perto.png`** — a mesma regra acontecendo, dia a dia. Três
+  linhas: o que aconteceu, o que foi previsto na véspera (cola no observado)
+  e o que foi previsto vários dias antes (se descola).
+
+O segundo é a prova visual do primeiro. Em aula, mostre nessa ordem.
 
 ## Rodar na sua máquina
 
@@ -132,11 +180,11 @@ secret**, com o nome `GEMINI_API_KEY`. Nunca escreva a chave no código.
 
 ---
 
-## Rodar sozinho todo dia
+## Rodar sozinho toda semana
 
-`.github/workflows/boletim.yml` executa os três passos às 9h de Brasília e
-commita o boletim no repositório. Cada dia vira um commit — o histórico do git
-passa a ser o arquivo dos boletins.
+`.github/workflows/boletim.yml` executa os passos **toda segunda às 9h de
+Brasília** e commita o boletim no repositório. Cada semana vira um commit — o
+histórico do git passa a ser a coleção de boletins.
 
 Dá para disparar na hora pelo botão **Actions → boletim-clima → Run workflow**
 (útil em aula). Esse botão tem um campo **dias_de_historico**: preencha com
@@ -155,19 +203,26 @@ antecedência faltar rodando na sua máquina, pelo Actions ela costuma vir.
    acertou ontem?" — ninguém consegue responder. Abra o histórico de commits:
    são 30 dias de previsão, todos perdidos, porque só a figura foi salva.
 2. **Aponte o conserto.** Uma linha de CSV por previsão. Só isso.
-3. **Abra `boletim.md`.** Vá direto ao gráfico de erro por antecedência: a
-   barra cresce da esquerda para a direita. Previsão de amanhã erra pouco; de
-   uma semana, erra bem mais. O robô descobriu isso sozinho, medindo previsões
-   reais contra o que de fato aconteceu.
-4. **Mostre a tabela de chuva.** "Previu chuva e não choveu: N dias." É o tipo
+3. **Abra `boletim.md` no gráfico de barras.** A barra cresce da esquerda
+   para a direita: previsão de amanhã erra pouco, de uma semana erra bem mais.
+   O robô descobriu isso medindo previsões reais contra o que aconteceu.
+4. **Desça para o gráfico das três linhas.** É o mesmo fato, agora visível:
+   a linha da véspera cola no observado, a dos 5 dias passeia. Primeiro a
+   regra, depois a prova.
+5. **Mostre a tabela de chuva.** "Previu chuva e não choveu: N dias." É o tipo
    de número que ninguém tem à mão e que sai de graça quando se guarda dado.
-5. **Só então fale da IA.** Mostre o `PROMPT` no `3_boletim.py` e a regra "não
-   calcule nada". Rode com e sem `GEMINI_API_KEY` para mostrar que os números
-   não mudam — só a redação.
-6. **Feche com a generalização.** Troque Open-Meteo por: preço de commodity,
+6. **Agora a IA — e a parte que quase ninguém mostra.** Abra `ia.py`. Primeiro
+   o `PROMPT`, com a regra "não invente número". Depois `auditar()`, que
+   confere se ele obedeceu. Pergunte à turma: *"e se o modelo desobedecer?"* —
+   a resposta é a trava. Rode com e sem `GEMINI_API_KEY`: os números não
+   mudam, só a redação.
+7. **Discuta a cadência.** Por que semanal e não diário? Porque a pergunta
+   certa não é "de quanto em quanto tempo dá para rodar", é "de quanto em
+   quanto tempo há algo novo para dizer". Vale para qualquer automação.
+8. **Feche com a generalização.** Troque Open-Meteo por: preço de commodity,
    andamento de processo, série do IBGE, sensor em campo. A estrutura
-   (`coletar → anotar → conferir → redigir`) é a mesma. O clima é só o exemplo
-   que dá para conferir em uma semana.
+   (`anotar → conferir → redigir → auditar`) é a mesma. O clima é só o
+   exemplo que dá para conferir em uma semana.
 
 ---
 
@@ -189,12 +244,14 @@ LIMIAR_CHUVA_MM = 1.0     # a partir de quanto se considera que choveu
 | Arquivo | O que é |
 |---|---|
 | `comum.py` | Chamadas à API (com repetição em caso de falha de rede) e leitura/escrita do histórico |
+| `ia.py` | A camada de IA: o prompt, a chamada ao Gemini e a auditoria numérica do texto |
 | `1_coletar.py` · `2_conferir.py` · `3_boletim.py` | Os três passos |
 | `montar_historico.py` | Recupera previsões reais já emitidas, para encher o histórico de uma vez |
 | `dados/historico_previsoes.csv` | O caderno: toda previsão já feita |
 | `dados/verificacao.csv` | Previsto x observado, com o erro de cada linha |
+| `dados/historico_boletins.csv` | As conclusões de cada semana, para o boletim comparar com a anterior |
 | `boletim.md` · `boletim.html` | O boletim do dia |
-| `graficos/` | As figuras do boletim |
+| `graficos/` | As duas figuras do boletim |
 | `coletar_clima.py` | O bot original da atividade, mantido como termo de comparação |
 
 ## As duas procedências no histórico

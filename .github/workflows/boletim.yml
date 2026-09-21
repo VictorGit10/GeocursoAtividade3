@@ -1,16 +1,20 @@
-name: boletim-clima
+name: boletim-semanal
 
+# Por que semanal e não diário: o que este robô mede é a QUALIDADE da
+# previsão, e isso quase não muda de um dia para o outro — um boletim diário
+# repetiria o mesmo número com ruído, e ninguém leria o quinto. Na segunda
+# há uma semana fechada para comparar com o acumulado, e aí há o que dizer.
 on:
   schedule:
-    - cron: "0 12 * * *"    # 12h UTC = 9h em Brasília
-  workflow_dispatch:         # botão "Run workflow" para rodar na hora, em aula
+    - cron: "0 12 * * 1"     # segundas, 12h UTC = 9h em Brasília
+  workflow_dispatch:
     inputs:
       dias_de_historico:
         description: >-
-          Recuperar previsões antigas antes de gerar o boletim (0 = não
-          recuperar). Use uma vez, para o histórico nascer cheio.
+          Quantos dias de previsões antigas recuperar antes de gerar o
+          boletim. Use 60 na primeira vez; depois 10 basta.
         required: false
-        default: "0"
+        default: "10"
 
 permissions:
   contents: write            # o robô precisa disso para commitar o boletim
@@ -18,7 +22,7 @@ permissions:
 # Se um disparo manual coincidir com o agendado, o segundo espera o primeiro.
 # Sem isso, os dois mexeriam no mesmo CSV ao mesmo tempo.
 concurrency:
-  group: boletim-clima
+  group: boletim-semanal
   cancel-in-progress: false
 
 jobs:
@@ -31,21 +35,21 @@ jobs:
         with:
           python-version: "3.12"
 
-      - run: pip install requests matplotlib
+      - run: pip install -r requirements.txt
 
-      - name: Passo 0 — recuperar previsões antigas (só quando pedido)
-        if: >-
-          github.event_name == 'workflow_dispatch' &&
-          inputs.dias_de_historico != '0'
-        run: python montar_historico.py "${{ inputs.dias_de_historico }}"
+      # Traz as previsões que o modelo emitiu na semana e que ninguém anotou.
+      - name: Atualizar o histórico com as previsões já emitidas
+        run: python montar_historico.py "${{ inputs.dias_de_historico || '10' }}"
 
-      - name: Passo 1 — coletar a previsão de hoje e anotar no histórico
+      # O caderno próprio do robô, que não depende do arquivo do Open-Meteo
+      # continuar existindo. É o padrão que vale para qualquer outra fonte.
+      - name: Anotar a previsão de hoje no caderno
         run: python 1_coletar.py
 
-      - name: Passo 2 — conferir as previsões antigas contra o que aconteceu
+      - name: Conferir as previsões vencidas contra o que aconteceu
         run: python 2_conferir.py
 
-      - name: Passo 3 — gerar os gráficos e escrever o boletim
+      - name: Gerar os gráficos e escrever o boletim
         env:
           # Cadastre em Settings > Secrets and variables > Actions.
           # Sem o segredo o boletim sai igual, com texto automático.
@@ -57,11 +61,11 @@ jobs:
           git config user.name  "robo"
           git config user.email "robo@users.noreply.github.com"
           git add dados graficos boletim.md boletim.html
-          git commit -m "boletim $(date -u +%F)" || {
-            echo "Nada mudou hoje — nada a commitar."
+          git commit -m "boletim da semana de $(date -u +%F)" || {
+            echo "Nada mudou — nada a commitar."
             exit 0
           }
           # O robô pode ter começado antes de outro push chegar. Rebase antes
-          # de empurrar, senão o push é recusado e o dia fica sem boletim.
+          # de empurrar, senão o push é recusado e a semana fica sem boletim.
           git pull --rebase origin "${GITHUB_REF_NAME}"
           git push origin "HEAD:${GITHUB_REF_NAME}"

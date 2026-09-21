@@ -8,8 +8,12 @@ Este repositório existe para responder a uma dúvida da turma:
 > "Tenho interesse em agentes de IA que possam, com a ajuda de prompt ou não,
 > elaborar relatórios ou boletins de análise de dados."
 
-➡️ **Veja o resultado: [`boletim.md`](boletim.md)** (ou `boletim.html`, com visual
-de página.)
+➡️ **O boletim está no ar:** https://victorgit10.github.io/GeocursoAtividade3/
+
+Cada semana vira uma edição arquivada em `boletins/<data>/`, com os gráficos
+daquela semana ao lado. A capa (`index.html`) mostra sempre a mais recente e
+lista as anteriores. Quem preferir ler pelo próprio GitHub tem o
+[`boletim.md`](boletim.md).
 
 ---
 
@@ -180,6 +184,22 @@ secret**, com o nome `GEMINI_API_KEY`. Nunca escreva a chave no código.
 
 ---
 
+## Publicar como site (GitHub Pages)
+
+O boletim é uma página, não um arquivo de texto — ler markdown cru na tela do
+GitHub é ruim. Para pôr no ar, uma vez só:
+
+**Settings → Pages → Source: Deploy from a branch → Branch: `main` / `/ (root)`
+→ Save.**
+
+Em cerca de um minuto o boletim aparece em
+`https://victorgit10.github.io/GeocursoAtividade3/`, e cada execução semanal
+republica sozinha — o workflow commita no `main`, e o Pages reconstrói.
+
+Por que cada edição tem a própria pasta: se todas apontassem para uma pasta de
+gráficos única, reabrir o boletim de três semanas atrás mostraria os gráficos
+de hoje. O arquivo mentiria sobre o passado.
+
 ## Rodar sozinho toda semana
 
 `.github/workflows/boletim.yml` executa os passos **toda segunda às 9h de
@@ -250,8 +270,10 @@ LIMIAR_CHUVA_MM = 1.0     # a partir de quanto se considera que choveu
 | `dados/historico_previsoes.csv` | O caderno: toda previsão já feita |
 | `dados/verificacao.csv` | Previsto x observado, com o erro de cada linha |
 | `dados/historico_boletins.csv` | As conclusões de cada semana, para o boletim comparar com a anterior |
-| `boletim.md` · `boletim.html` | O boletim do dia |
-| `graficos/` | As duas figuras do boletim |
+| `index.html` | A capa do site: a edição mais recente e a lista das anteriores |
+| `boletins/<data>/` | Uma edição fechada: o HTML da semana e os gráficos dela |
+| `boletim.md` | A mesma edição em markdown, para ler pelo GitHub |
+| `.nojekyll` | Diz ao GitHub Pages para publicar os arquivos como estão |
 | `coletar_clima.py` | O bot original da atividade, mantido como termo de comparação |
 
 ## As duas procedências no histórico

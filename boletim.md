@@ -38,11 +38,11 @@ Sobre todo o histórico. É a regra central do boletim: a previsão de véspera 
 | 6 dias | 20 | 1.68 °C | 1.81 °C | +0.12 °C |
 | 7 dias | 20 | 1.98 °C | 1.81 °C | -0.56 °C |
 
-![Erro por antecedência](graficos/erro_por_antecedencia.png)
+![Erro por antecedência](boletins/2026-09-21/erro_por_antecedencia.png)
 
 E a mesma regra vista dia a dia: a previsão feita 1 dia antes acompanha o que aconteceu; a de 7 dias se descola.
 
-![De longe e de perto](graficos/de_longe_e_de_perto.png)
+![De longe e de perto](boletins/2026-09-21/de_longe_e_de_perto.png)
 
 ## Chuva: acertou o sim ou não?
 

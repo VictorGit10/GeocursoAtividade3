@@ -68,6 +68,14 @@
   img { width: 100%; height: auto; border-radius: 10px; margin: 14px 0;
          border: 1px solid var(--linha); background: #fff; }
   .credito { color: var(--tinta-fraca); font-size: .82rem; }
+  .edicoes { list-style: none; padding: 0; margin: 8px 0 0;
+              display: flex; flex-wrap: wrap; gap: 8px; }
+  .edicoes a { display: inline-block; padding: 6px 12px;
+                border: 1px solid var(--linha); border-radius: 999px;
+                background: var(--cartao); color: var(--tinta);
+                text-decoration: none; font-size: .88rem;
+                font-variant-numeric: tabular-nums; }
+  .edicoes a:hover { border-color: var(--azul); color: var(--azul); }
   footer { margin-top: 44px; padding-top: 18px;
             border-top: 1px solid var(--linha); }
 </style>
@@ -76,16 +84,16 @@
 <main>
   <h1>Boletim semanal de acerto da previsão — Goiânia</h1>
   <p class="meta">2026-09-21 · semana de 2026-09-14 a
-     2026-09-20 · 140 previsões no histórico</p>
-  <div class="aviso">Previsões conferidas: 140 recuperadas do arquivo de rodadas antigas do Open-Meteo. São previsões reais, emitidas antes da data que descrevem — nada aqui é simulado.</div>
+     2026-09-20 · 420 previsões no histórico</p>
+  <div class="aviso">Previsões conferidas: 420 recuperadas do arquivo de rodadas antigas do Open-Meteo. São previsões reais, emitidas antes da data que descrevem — nada aqui é simulado.</div>
 
   <div class="kpis">
     <div class="kpi"><span>Erro médio da máxima</span>
       <strong>1.22 °C</strong>
-      <span class="bom">melhor que o normal</span></div>
+      <span class="ruim">pior que o normal</span></div>
     <div class="kpi"><span>Erro médio da mínima</span>
       <strong>1.17 °C</strong>
-      <span class="ruim">pior que o normal</span></div>
+      <span class="bom">melhor que o normal</span></div>
     <div class="kpi"><span>Viés da máxima</span>
       <strong>+0.82 °C</strong>
       <span class="ruim">pior que o normal</span></div>
@@ -95,7 +103,7 @@
   </div>
 
   <h2>Análise</h2>
-  <p>Na semana de 2026-09-14 a 2026-09-20, o erro médio da temperatura máxima foi de 1.22 °C em 49 previsões conferidas — melhor que o acumulado, que está em 1.55 °C.</p><p>O viés de +0.82 °C indica que a previsão tende a ficar acima do que se observa. O acerto entre "vai chover" e "não vai" foi de 87.8%. O maior desacerto do histórico foi em 2026-09-10: previa 27.0 °C e foram 33.0 °C.</p><p>Na prática: com 1 dia de antecedência, conte com cerca de 1.19 °C de margem; com 7 dias, a margem sobe para perto de 1.98 °C. Para decisões que não podem errar, prefira confirmar na véspera.</p>
+  <p>Na semana de 2026-09-14 a 2026-09-20, o erro médio da temperatura máxima foi de 1.22 °C em 49 previsões conferidas — pior que o acumulado, que está em 1.21 °C.</p><p>O viés de +0.82 °C indica que a previsão tende a ficar acima do que se observa. O acerto entre "vai chover" e "não vai" foi de 87.8%. O maior desacerto do histórico foi em 2026-09-10: previa 27.0 °C e foram 33.0 °C.</p><p>Na prática: com 1 dia de antecedência, conte com cerca de 0.8 °C de margem; com 7 dias, a margem sobe para perto de 1.56 °C. Para decisões que não podem errar, prefira confirmar na véspera.</p>
   <p class="credito">texto automático (sem GEMINI_API_KEY). Os números são calculados em Python; a IA só
      redige, e o texto passa por uma auditoria que recusa qualquer número que
      não saia do cálculo.</p>
@@ -106,17 +114,17 @@
   <table>
     <thead><tr><th>Antecedência</th><th>Previsões</th><th>Erro médio máx.</th>
     <th>Erro médio mín.</th><th>Viés máx.</th></tr></thead>
-    <tbody><tr><td>1 dia</td><td>20</td><td>1.19 °C</td><td>0.51 °C</td><td>+0.66 °C</td></tr><tr><td>2 dias</td><td>20</td><td>1.26 °C</td><td>0.81 °C</td><td>+0.92 °C</td></tr><tr><td>3 dias</td><td>20</td><td>1.35 °C</td><td>0.72 °C</td><td>+0.82 °C</td></tr><tr><td>4 dias</td><td>20</td><td>1.61 °C</td><td>0.97 °C</td><td>+0.54 °C</td></tr><tr><td>5 dias</td><td>20</td><td>1.79 °C</td><td>1.47 °C</td><td>+0.72 °C</td></tr><tr><td>6 dias</td><td>20</td><td>1.68 °C</td><td>1.81 °C</td><td>+0.12 °C</td></tr><tr><td>7 dias</td><td>20</td><td>1.98 °C</td><td>1.81 °C</td><td>-0.56 °C</td></tr></tbody>
+    <tbody><tr><td>1 dia</td><td>60</td><td>0.8 °C</td><td>0.6 °C</td><td>+0.61 °C</td></tr><tr><td>2 dias</td><td>60</td><td>0.9 °C</td><td>0.82 °C</td><td>+0.78 °C</td></tr><tr><td>3 dias</td><td>60</td><td>1.12 °C</td><td>0.97 °C</td><td>+0.93 °C</td></tr><tr><td>4 dias</td><td>60</td><td>1.3 °C</td><td>1.18 °C</td><td>+0.92 °C</td></tr><tr><td>5 dias</td><td>60</td><td>1.42 °C</td><td>1.4 °C</td><td>+1.06 °C</td></tr><tr><td>6 dias</td><td>60</td><td>1.35 °C</td><td>2.53 °C</td><td>+0.83 °C</td></tr><tr><td>7 dias</td><td>60</td><td>1.56 °C</td><td>2.49 °C</td><td>+0.49 °C</td></tr></tbody>
   </table>
-  <img src="graficos/erro_por_antecedencia.png"
+  <img src="boletins/2026-09-21/erro_por_antecedencia.png"
        alt="Gráfico de barras: o erro médio da temperatura máxima cresce
             conforme aumentam os dias de antecedência da previsão">
   
   <p>E a mesma regra vista dia a dia: a previsão feita
      1 dia antes acompanha o que aconteceu; a de
      7 dias se descola.</p>
-  <img src="graficos/de_longe_e_de_perto.png"
-       alt="Três linhas ao longo de 20 dias: o que aconteceu,
+  <img src="boletins/2026-09-21/de_longe_e_de_perto.png"
+       alt="Três linhas ao longo de 21 dias: o que aconteceu,
             o previsto 1 dia antes, que acompanha de perto,
             e o previsto 7 dias antes, que se descola">
 
@@ -134,6 +142,8 @@
      7 dias de antecedência: previsto
      27.0 °C, observado
      33.0 °C (-6.0 °C).</p>
+
+  
 
   <footer class="credito">
     Dados: Open-Meteo. O “observado” é a melhor estimativa da API para datas

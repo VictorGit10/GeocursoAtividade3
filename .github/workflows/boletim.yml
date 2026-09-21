@@ -60,7 +60,7 @@ jobs:
         run: |
           git config user.name  "robo"
           git config user.email "robo@users.noreply.github.com"
-          git add dados graficos boletim.md boletim.html
+          git add dados boletins index.html boletim.md
           git commit -m "boletim da semana de $(date -u +%F)" || {
             echo "Nada mudou — nada a commitar."
             exit 0

@@ -31,10 +31,15 @@ import ia
 
 PASTA = comum.PASTA
 ARQ_BOLETIM_MD = os.path.join(PASTA, "boletim.md")
-ARQ_BOLETIM_HTML = os.path.join(PASTA, "boletim.html")
+ARQ_INDEX = os.path.join(PASTA, "index.html")      # a capa do site
+PASTA_BOLETINS = os.path.join(PASTA, "boletins")   # uma pasta por edição
 ARQ_SERIE = os.path.join(PASTA, "dados", "historico_boletins.csv")
-GRAF_ERRO = os.path.join(PASTA, "graficos", "erro_por_antecedencia.png")
-GRAF_LINHA = os.path.join(PASTA, "graficos", "de_longe_e_de_perto.png")
+
+# Cada edição guarda os próprios gráficos. Se todas apontassem para uma
+# pasta única, reabrir o boletim de três semanas atrás mostraria os gráficos
+# de hoje — o arquivo mentiria sobre o passado.
+NOME_GRAF_ERRO = "erro_por_antecedencia.png"
+NOME_GRAF_LINHA = "de_longe_e_de_perto.png"
 
 DIAS_DA_SEMANA = 7
 DIAS_NO_GRAFICO = 21
@@ -201,7 +206,7 @@ def _limpar_eixo(ax):
     ax.set_axisbelow(True)
 
 
-def grafico_erro_por_antecedencia(m):
+def grafico_erro_por_antecedencia(m, destino):
     """Gráfico 1 — a regra: quanto mais longe, pior.
 
     Uma série só, uma cor só: o comprimento da barra já diz a magnitude,
@@ -227,12 +232,12 @@ def grafico_erro_por_antecedencia(m):
     ax.set_ylim(0, max(valores) * 1.22)
 
     fig.tight_layout()
-    fig.savefig(GRAF_ERRO, dpi=140, facecolor=FUNDO)
+    fig.savefig(destino, dpi=140, facecolor=FUNDO)
     plt.close(fig)
     return antecedencias
 
 
-def grafico_de_longe_e_de_perto(linhas, m, antecedencias):
+def grafico_de_longe_e_de_perto(linhas, m, antecedencias, destino):
     """Gráfico 2 — a MESMA história do gráfico 1, dia a dia.
 
     O gráfico 1 diz "com 5 dias o erro é maior" como média. Este mostra isso
@@ -301,7 +306,7 @@ def grafico_de_longe_e_de_perto(linhas, m, antecedencias):
     ax.legend(frameon=False, fontsize=9, labelcolor=TINTA_FRACA,
               loc="upper center", bbox_to_anchor=(0.5, -0.22), ncol=3)
     fig.autofmt_xdate(rotation=45)
-    fig.savefig(GRAF_LINHA, dpi=140, facecolor=FUNDO, bbox_inches="tight")
+    fig.savefig(destino, dpi=140, facecolor=FUNDO, bbox_inches="tight")
     plt.close(fig)
     return {"perto": perto, "longe": longe, "dias": len(dias)}
 
@@ -363,7 +368,17 @@ def descricao_origens(m):
             "antes da data que descrevem — nada aqui é simulado.")
 
 
-def montar_markdown(m, analise, autor, comparacao):
+def listar_edicoes(atual):
+    """As edições já publicadas, da mais nova para a mais antiga."""
+    if not os.path.isdir(PASTA_BOLETINS):
+        return []
+    datas = [nome for nome in os.listdir(PASTA_BOLETINS)
+             if os.path.isdir(os.path.join(PASTA_BOLETINS, nome))
+             and nome != atual]
+    return sorted(datas, reverse=True)
+
+
+def montar_markdown(m, analise, autor, comparacao, prefixo):
     semana, acumulado = m["semana"], m["acumulado"]
     linhas = [
         f"# Boletim semanal de acerto da previsão — {m['cidade']}",
@@ -412,7 +427,7 @@ def montar_markdown(m, analise, autor, comparacao):
             f"| {d['mae_tmin']} °C | {d['vies_tmax']:+} °C |"
         )
 
-    linhas += ["", f"![Erro por antecedência](graficos/{os.path.basename(GRAF_ERRO)})", ""]
+    linhas += ["", f"![Erro por antecedência]({prefixo}{NOME_GRAF_ERRO})", ""]
 
     if comparacao:
         linhas += [
@@ -420,7 +435,7 @@ def montar_markdown(m, analise, autor, comparacao):
             f"{comparacao['perto']} dia antes acompanha o que aconteceu; a de "
             f"{comparacao['longe']} dias se descola.",
             "",
-            f"![De longe e de perto](graficos/{os.path.basename(GRAF_LINHA)})",
+            f"![De longe e de perto]({prefixo}{NOME_GRAF_LINHA})",
             "",
         ]
 
@@ -456,7 +471,7 @@ def montar_markdown(m, analise, autor, comparacao):
     return "\n".join(linhas)
 
 
-def montar_html(m, analise, autor, comparacao):
+def montar_html(m, analise, autor, comparacao, prefixo, edicoes=()):
     semana, acumulado = m["semana"], m["acumulado"]
     paragrafos = "".join(
         f"<p>{p.strip()}</p>" for p in analise.split("\n\n") if p.strip()
@@ -484,13 +499,24 @@ def montar_html(m, analise, autor, comparacao):
         for chave, rotulo in ROTULOS_CHUVA.items()
     )
 
+    if edicoes:
+        # A capa fica na raiz e desce para boletins/<data>/. Uma edição já
+        # está dentro de boletins/, então sobe um nível para alcançar a irmã.
+        base = "boletins/" if prefixo else "../"
+        itens = "".join(f'<li><a href="{base}{d}/">{d}</a></li>'
+                        for d in edicoes[:12])
+        bloco_edicoes = ('<h2>Edições anteriores</h2>'
+                         f'<ul class="edicoes">{itens}</ul>')
+    else:
+        bloco_edicoes = ""
+
     bloco_linha = ""
     if comparacao:
         bloco_linha = f"""
   <p>E a mesma regra vista dia a dia: a previsão feita
      {comparacao['perto']} dia antes acompanha o que aconteceu; a de
      {comparacao['longe']} dias se descola.</p>
-  <img src="graficos/{os.path.basename(GRAF_LINHA)}"
+  <img src="{prefixo}{NOME_GRAF_LINHA}"
        alt="Três linhas ao longo de {comparacao['dias']} dias: o que aconteceu,
             o previsto {comparacao['perto']} dia antes, que acompanha de perto,
             e o previsto {comparacao['longe']} dias antes, que se descola">
@@ -566,6 +592,14 @@ def montar_html(m, analise, autor, comparacao):
   img {{ width: 100%; height: auto; border-radius: 10px; margin: 14px 0;
          border: 1px solid var(--linha); background: #fff; }}
   .credito {{ color: var(--tinta-fraca); font-size: .82rem; }}
+  .edicoes {{ list-style: none; padding: 0; margin: 8px 0 0;
+              display: flex; flex-wrap: wrap; gap: 8px; }}
+  .edicoes a {{ display: inline-block; padding: 6px 12px;
+                border: 1px solid var(--linha); border-radius: 999px;
+                background: var(--cartao); color: var(--tinta);
+                text-decoration: none; font-size: .88rem;
+                font-variant-numeric: tabular-nums; }}
+  .edicoes a:hover {{ border-color: var(--azul); color: var(--azul); }}
   footer {{ margin-top: 44px; padding-top: 18px;
             border-top: 1px solid var(--linha); }}
 </style>
@@ -606,7 +640,7 @@ def montar_html(m, analise, autor, comparacao):
     <th>Erro médio mín.</th><th>Viés máx.</th></tr></thead>
     <tbody>{filas}</tbody>
   </table>
-  <img src="graficos/{os.path.basename(GRAF_ERRO)}"
+  <img src="{prefixo}{NOME_GRAF_ERRO}"
        alt="Gráfico de barras: o erro médio da temperatura máxima cresce
             conforme aumentam os dias de antecedência da previsão">
   {bloco_linha}
@@ -624,6 +658,8 @@ def montar_html(m, analise, autor, comparacao):
      {m['pior_erro']['antecedencia']} dias de antecedência: previsto
      {m['pior_erro']['previsto']} °C, observado
      {m['pior_erro']['observado']} °C ({m['pior_erro']['erro']:+} °C).</p>
+
+  {bloco_edicoes}
 
   <footer class="credito">
     Dados: Open-Meteo. O “observado” é a melhor estimativa da API para datas
@@ -653,24 +689,42 @@ def main():
     if anterior:
         m["semana_anterior"] = anterior
 
-    os.makedirs(os.path.dirname(GRAF_ERRO), exist_ok=True)
-    antecedencias = grafico_erro_por_antecedencia(m)
-    comparacao = grafico_de_longe_e_de_perto(linhas, m, antecedencias)
+    # A edição da semana mora na própria pasta, com os próprios gráficos.
+    pasta_edicao = os.path.join(PASTA_BOLETINS, m["gerado_em"])
+    os.makedirs(pasta_edicao, exist_ok=True)
+
+    antecedencias = grafico_erro_por_antecedencia(
+        m, os.path.join(pasta_edicao, NOME_GRAF_ERRO))
+    comparacao = grafico_de_longe_e_de_perto(
+        linhas, m, antecedencias, os.path.join(pasta_edicao, NOME_GRAF_LINHA))
 
     # A IA recebe só os números já calculados — e o texto dela é auditado
     # antes de entrar no boletim.
     analise, autor = ia.redigir(m, m["cidade"], texto_de_reserva(m, anterior))
 
+    edicoes = listar_edicoes(m["gerado_em"])
+
+    # 1. A edição da semana: pasta fechada, gráficos ao lado do HTML.
+    with open(os.path.join(pasta_edicao, "index.html"), "w", encoding="utf-8") as f:
+        f.write(montar_html(m, analise, autor, comparacao,
+                            prefixo="", edicoes=edicoes))
+
+    # 2. A capa do site: a mesma edição, com as imagens um nível abaixo.
+    prefixo_raiz = f"boletins/{m['gerado_em']}/"
+    with open(ARQ_INDEX, "w", encoding="utf-8") as f:
+        f.write(montar_html(m, analise, autor, comparacao,
+                            prefixo=prefixo_raiz, edicoes=edicoes))
+
+    # 3. O markdown, para quem lê pelo próprio GitHub.
     with open(ARQ_BOLETIM_MD, "w", encoding="utf-8") as f:
-        f.write(montar_markdown(m, analise, autor, comparacao))
-    with open(ARQ_BOLETIM_HTML, "w", encoding="utf-8") as f:
-        f.write(montar_html(m, analise, autor, comparacao))
+        f.write(montar_markdown(m, analise, autor, comparacao, prefixo_raiz))
 
     gravar_na_serie(m)
 
     print(f"Boletim semanal gerado ({autor}).")
-    print(f"  {ARQ_BOLETIM_MD}")
-    print(f"  {ARQ_BOLETIM_HTML}")
+    print(f"  capa do site: {ARQ_INDEX}")
+    print(f"  edição:       {pasta_edicao}/index.html")
+    print(f"  markdown:     {ARQ_BOLETIM_MD}")
 
 
 if __name__ == "__main__":

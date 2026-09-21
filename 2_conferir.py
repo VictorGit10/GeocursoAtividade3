@@ -17,7 +17,28 @@ from datetime import date
 
 import comum
 
-DIAS_PARA_TRAS = 20
+# A API aceita no máximo 92 dias de passado numa chamada.
+LIMITE_DA_API = 92
+# Piso, para o caso de o caderno ter só datas futuras.
+JANELA_MINIMA = 10
+
+
+def janela_necessaria(historico, hoje):
+    """Quantos dias de observação buscar.
+
+    Uma janela fixa era um erro silencioso: se o caderno guardasse 60 dias de
+    previsões e o conferidor só olhasse 20 dias para trás, os outros 40
+    ficariam parados no CSV, sem nunca virar medição — e ninguém veria falha
+    nenhuma, porque o boletim saía normal, só que menor.
+
+    Então a janela sai do próprio caderno: recua até a previsão mais antiga
+    que ainda espera conferência.
+    """
+    passadas = [date.fromisoformat(l["data_alvo"]) for l in historico
+                if date.fromisoformat(l["data_alvo"]) < hoje]
+    if not passadas:
+        return JANELA_MINIMA
+    return min(max((hoje - min(passadas)).days, JANELA_MINIMA), LIMITE_DA_API)
 
 
 def main():
@@ -26,10 +47,12 @@ def main():
         print("Caderno vazio. Rode 1_coletar.py primeiro.")
         return
 
-    # O que realmente aconteceu nos últimos DIAS_PARA_TRAS dias.
-    diario = comum.buscar_open_meteo(dias_passado=DIAS_PARA_TRAS, dias_futuro=1)
-
     hoje = date.today()
+
+    # O que realmente aconteceu, cobrindo todo o caderno.
+    dias = janela_necessaria(historico, hoje)
+    print(f"Buscando o observado dos últimos {dias} dias...")
+    diario = comum.buscar_open_meteo(dias_passado=dias, dias_futuro=1)
     observado = {}
     for i, dia in enumerate(diario["time"]):
         # Só dias já encerrados entram como observação. O dia de hoje ainda

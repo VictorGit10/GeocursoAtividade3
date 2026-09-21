@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Boletim de acerto da previsão — Goiânia</title>
+<style>
+  :root {
+    --fundo: #fcfcfb; --cartao: #ffffff; --tinta: #0b0b0b;
+    --tinta-fraca: #52514e; --linha: #dcdcd8; --azul: #2a78d6;
+    --laranja: #eb6834;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --fundo: #141413; --cartao: #1a1a19; --tinta: #ffffff;
+      --tinta-fraca: #c3c2b7; --linha: #35342f; --azul: #3987e5;
+      --laranja: #d95926;
+    }
+  }
+  :root[data-theme="dark"] {
+    --fundo: #141413; --cartao: #1a1a19; --tinta: #ffffff;
+    --tinta-fraca: #c3c2b7; --linha: #35342f; --azul: #3987e5;
+    --laranja: #d95926;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 32px 16px; background: var(--fundo);
+    color: var(--tinta); font: 16px/1.65 -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  main { max-width: 760px; margin: 0 auto; }
+  h1 { font-size: 1.6rem; line-height: 1.25; margin: 0 0 6px; }
+  h2 { font-size: 1.15rem; margin: 40px 0 12px; }
+  h3 { font-size: 1rem; margin: 28px 0 10px; color: var(--tinta-fraca);
+        text-transform: uppercase; letter-spacing: .06em; }
+  .meta { color: var(--tinta-fraca); font-size: .9rem; margin-bottom: 28px; }
+  .aviso {
+    border-left: 3px solid var(--laranja); background: var(--cartao);
+    padding: 14px 16px; border-radius: 6px; font-size: .92rem; margin: 0 0 28px;
+  }
+  .kpis {
+    display: grid; gap: 12px; margin: 0 0 8px;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+  .kpi {
+    background: var(--cartao); border: 1px solid var(--linha);
+    border-radius: 10px; padding: 14px 16px;
+  }
+  .kpi span { display: block; color: var(--tinta-fraca); font-size: .78rem;
+               text-transform: uppercase; letter-spacing: .05em; }
+  .kpi strong { font-size: 1.7rem; font-weight: 600; }
+  table { width: 100%; border-collapse: collapse; margin: 8px 0 4px;
+           font-size: .93rem; }
+  th, td { text-align: left; padding: 9px 10px;
+            border-bottom: 1px solid var(--linha); }
+  th { color: var(--tinta-fraca); font-weight: 600; font-size: .8rem;
+        text-transform: uppercase; letter-spacing: .05em; }
+  td:not(:first-child) { font-variant-numeric: tabular-nums; }
+  img { width: 100%; height: auto; border-radius: 10px; margin: 16px 0;
+         border: 1px solid var(--linha); background: #fff; }
+  .credito { color: var(--tinta-fraca); font-size: .82rem; }
+  footer { margin-top: 40px; padding-top: 18px;
+            border-top: 1px solid var(--linha); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Boletim de acerto da previsão — Goiânia</h1>
+  <p class="meta">Gerado em 2026-09-21 · 120 previsões
+     conferidas (2026-09-01 a 2026-09-20)</p>
+  <div class="aviso"><strong>MODO EXEMPLO</strong> — este boletim inclui previsões simuladas, criadas para demonstrar o formato antes de o histórico real encher. Os números de erro são ilustrativos, não uma medição.</div>
+
+  <div class="kpis">
+    <div class="kpi"><span>Erro médio máx.</span><strong>1.75 °C</strong></div>
+    <div class="kpi"><span>Erro médio mín.</span><strong>1.61 °C</strong></div>
+    <div class="kpi"><span>Viés da máxima</span><strong>+0.65 °C</strong></div>
+    <div class="kpi"><span>Acerto de chuva</span><strong>75.0%</strong></div>
+  </div>
+
+  <h2>Análise</h2>
+  <p>Nas 120 previsões conferidas entre 2026-09-01 e 2026-09-20, o erro médio da temperatura máxima foi de 1.75 °C. A qualidade cai com a distância: com 1 dia de antecedência o erro médio é 0.8 °C, e com 6 dias sobe para 2.48 °C.</p><p>O viés de +0.65 °C indica que a previsão tende a ficar acima do que se observa. Para chuva, o acerto entre "vai chover" e "não vai" foi de 75.0%. O maior desacerto do período foi em 2026-09-16: previa 40.8 °C e foram 33.5 °C.</p>
+  <p class="credito">texto automático (sem GEMINI_API_KEY). Todos os números foram calculados em Python;
+     a IA apenas redigiu o texto.</p>
+
+  <h3>Erro por antecedência</h3>
+  <table>
+    <thead><tr><th>Antecedência</th><th>Previsões</th><th>Erro médio máx.</th>
+    <th>Erro médio mín.</th><th>Viés máx.</th></tr></thead>
+    <tbody><tr><td>1 dia</td><td>20</td><td>0.8 °C</td><td>0.8 °C</td><td>+0.7 °C</td></tr><tr><td>2 dias</td><td>20</td><td>1.18 °C</td><td>0.77 °C</td><td>+0.83 °C</td></tr><tr><td>3 dias</td><td>20</td><td>1.22 °C</td><td>1.56 °C</td><td>-0.09 °C</td></tr><tr><td>4 dias</td><td>20</td><td>1.99 °C</td><td>1.69 °C</td><td>+0.64 °C</td></tr><tr><td>5 dias</td><td>20</td><td>2.85 °C</td><td>2.64 °C</td><td>+0.6 °C</td></tr><tr><td>6 dias</td><td>20</td><td>2.48 °C</td><td>2.19 °C</td><td>+1.22 °C</td></tr></tbody>
+  </table>
+  <img src="graficos/erro_por_antecedencia.png"
+       alt="Gráfico de barras: o erro médio da temperatura máxima cresce conforme
+            aumentam os dias de antecedência da previsão">
+
+  <h3>Chuva: acertou o sim ou não?</h3>
+  <table>
+    <thead><tr><th>Situação</th><th>Dias</th></tr></thead>
+    <tbody><tr><td>Previu chuva e choveu</td><td>32</td></tr><tr><td>Previu chuva e não choveu</td><td>20</td></tr><tr><td>Não previu e choveu</td><td>10</td></tr><tr><td>Previu seco e ficou seco</td><td>58</td></tr></tbody>
+  </table>
+
+  <h3>Maior desacerto do período</h3>
+  <p>Em <strong>2026-09-16</strong>, com
+     5 dias de antecedência: previsto
+     40.8 °C, observado
+     33.5 °C (+7.3 °C).</p>
+  <img src="graficos/previsto_vs_observado.png" alt="Linha do tempo comparando a máxima prevista com a observada">
+
+  <footer class="credito">
+    Dados: Open-Meteo. O “observado” é a melhor estimativa da API para datas
+    passadas (reanálise), não a leitura de uma estação específica.
+    Gerado automaticamente por
+    <a href="https://github.com/VictorGit10/GeocursoAtividade3">GeocursoAtividade3</a>.
+  </footer>
+</main>
+</body>
+</html>
